@@ -1,0 +1,66 @@
+# ============================================================
+# .gitignore - Arquivos que NAO devem ser versionados
+# ============================================================
+
+# Variáveis de ambiente (contem segredos - NUNCA versionar!)
+.env
+.env.*
+
+# Ambiente virtual Python
+.venv/
+venv/
+env/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos compilados
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Arquivos de desenvolvimento Python
+.python-version
+.debug
+
+# Bases de dados locais
+*.sqlite3
+*.db
+
+# Media uploads (arquivos de foto dos usuarios)
+media/
+
+# Arquivos estaticos coletados
+staticfiles/
+collected_static/
+
+# Logs
+logs/
+*.log
+
+# IDEs e Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Cobertura de testes
+htmlcov/
+.coverage
+.coverage.*
+.tox/
+coverage.xml
+*.cover
+.hypothesis/
+pytest_cache/
+
+# Ambiente UV
+uv.lock

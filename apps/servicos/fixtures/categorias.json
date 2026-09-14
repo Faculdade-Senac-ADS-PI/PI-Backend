@@ -1,0 +1,74 @@
+[
+  {
+    "model": "servicos.categoria",
+    "pk": 1,
+    "fields": {
+      "nome": "Desenvolvimento Web",
+      "descricao": "Criacao de sites, sistemas web e e-commerces",
+      "icone": "💻"
+    }
+  },
+  {
+    "model": "servicos.categoria",
+    "pk": 2,
+    "fields": {
+      "nome": "Design Grafico",
+      "descricao": "Logotipos, identidade visual, banners e artes",
+      "icone": "🎨"
+    }
+  },
+  {
+    "model": "servicos.categoria",
+    "pk": 3,
+    "fields": {
+      "nome": "Marketing Digital",
+      "descricao": "Gestao de redes sociais, SEO e campanhas",
+      "icone": "📣"
+    }
+  },
+  {
+    "model": "servicos.categoria",
+    "pk": 4,
+    "fields": {
+      "nome": "Consultoria",
+      "descricao": "Consultoria empresarial, contabil e juridica",
+      "icone": "💼"
+    }
+  },
+  {
+    "model": "servicos.categoria",
+    "pk": 5,
+    "fields": {
+      "nome": "Aulas e Educacao",
+      "descricao": "Aulas particulares, cursos e mentorias",
+      "icone": "📚"
+    }
+  },
+  {
+    "model": "servicos.categoria",
+    "pk": 6,
+    "fields": {
+      "nome": "Manutencao e Reparos",
+      "descricao": "Servicos residenciais, eletrica, hidraulica",
+      "icone": "🔧"
+    }
+  },
+  {
+    "model": "servicos.categoria",
+    "pk": 7,
+    "fields": {
+      "nome": "Saude e Bem-Estar",
+      "descricao": "Personal, nutricionista, psicologo e terapeutas",
+      "icone": "💪"
+    }
+  },
+  {
+    "model": "servicos.categoria",
+    "pk": 8,
+    "fields": {
+      "nome": "Fotografia e Video",
+      "descricao": "Sessoes de fotos, filmagem e edicao",
+      "icone": "📸"
+    }
+  }
+]

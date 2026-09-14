@@ -1,0 +1,1469 @@
+openapi: 3.0.3
+info:
+  title: Plataforma de Servicos API
+  version: 1.0.0
+  description: API REST para plataforma de divulgacao e venda de servicos. Permite
+    que profissionais e empresas publiquem seus servicos e que clientes encontrem
+    e contratem profissionais.
+paths:
+  /api/v1/auth/change-password/:
+    post:
+      operationId: auth_change_password_create
+      description: Altera a senha do usuario autenticado. Requer a senha atual para
+        confirmar a identidade.
+      summary: Alterar senha do usuario
+      tags:
+      - usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlterarSenhaRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AlterarSenhaRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AlterarSenhaRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Autentica o usuario e retorna os tokens JWT. Envie email e password
+        para receber access e refresh tokens.
+      summary: Login (obter tokens JWT)
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/v1/auth/profile/:
+    get:
+      operationId: auth_profile_retrieve
+      description: Retorna todos os dados do perfil do usuario logado.
+      summary: Obter perfil do usuario autenticado
+      tags:
+      - usuarios
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+          description: ''
+    put:
+      operationId: auth_profile_update
+      description: |-
+        View de perfil do usuario autenticado.
+
+        Permite ao usuario logado visualizar e editar seu proprio perfil.
+        Requer autenticacao JWT.
+
+        Metodos aceitos:
+            - GET: Retorna os dados do perfil
+            - PATCH: Atualiza parcialmente o perfil
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UsuarioRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UsuarioRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+          description: ''
+    patch:
+      operationId: auth_profile_partial_update
+      description: Atualiza parcialmente os dados do perfil. Apenas os campos enviados
+        serao atualizados.
+      summary: Atualizar perfil do usuario
+      tags:
+      - usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUsuarioRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUsuarioRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUsuarioRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+          description: ''
+  /api/v1/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Cria uma nova conta na plataforma. Aceita email, username, senha
+        e dados basicos. Retorna os dados do usuario criado.
+      summary: Registrar novo usuario
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistroRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegistroRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegistroRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registro'
+          description: ''
+  /api/v1/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: Envia um refresh token valido para receber um novo access token.
+        Como a rotacao esta ativa, um novo refresh token tambem e emitido.
+      summary: Renovar access token
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/auth/token/verify/:
+    post:
+      operationId: auth_token_verify_create
+      description: Verifica se um access token ainda e valido.
+      summary: Verificar token
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/categorias/:
+    get:
+      operationId: categorias_list
+      description: Retorna todas as categorias de servicos disponiveis. Cada categoria
+        inclui o total de servicos ativos.
+      summary: Listar categorias
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qual campo usar ao ordenar os resultados.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: Um termo de busca.
+        schema:
+          type: string
+      tags:
+      - categorias
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categoria'
+          description: ''
+  /api/v1/categorias/{id}/:
+    get:
+      operationId: categorias_retrieve
+      description: Retorna os dados de uma categoria especifica.
+      summary: Detalhar categoria
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Um valor inteiro único que identifica este Categoria.
+        required: true
+      tags:
+      - categorias
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'
+          description: ''
+  /api/v1/servicos/:
+    get:
+      operationId: servicos_list
+      description: Retorna lista paginada de servicos ativos. Suporta busca por titulo/descricao,
+        filtragem por categoria, tipo_preco e localizacao.
+      summary: Listar servicos
+      parameters:
+      - in: query
+        name: autor
+        schema:
+          type: string
+          format: uuid
+        description: Filtra por UUID do autor do servico
+      - in: query
+        name: categoria
+        schema:
+          type: integer
+        description: Filtra por ID da categoria
+      - in: query
+        name: localizacao
+        schema:
+          type: string
+        description: Busca por localizacao (case-insensitive, contem)
+      - name: ordering
+        required: false
+        in: query
+        description: Qual campo usar ao ordenar os resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a serem retornados por página.
+        schema:
+          type: integer
+      - in: query
+        name: preco_max
+        schema:
+          type: number
+        description: Preco maximo
+      - in: query
+        name: preco_min
+        schema:
+          type: number
+        description: Preco minimo
+      - name: search
+        required: false
+        in: query
+        description: Um termo de busca.
+        schema:
+          type: string
+      - in: query
+        name: tipo_preco
+        schema:
+          type: string
+          title: Tipo de Preco
+          enum:
+          - a_combinar
+          - fixo
+        description: |-
+          Filtra por tipo de preco: 'fixo' ou 'a_combinar'
+
+          * `fixo` - Preco Fixo
+          * `a_combinar` - A Combinar
+      tags:
+      - servicos
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedServicoListList'
+          description: ''
+    post:
+      operationId: servicos_create
+      description: Cria um novo servico vinculado ao usuario autenticado. O campo
+        'usuario' e definido automaticamente.
+      summary: Criar novo servico
+      tags:
+      - servicos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServicoCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ServicoCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ServicoCreateUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicoCreateUpdate'
+          description: ''
+  /api/v1/servicos/{id}/:
+    get:
+      operationId: servicos_retrieve
+      description: Retorna todos os dados de um servico especifico.
+      summary: Detalhar servico
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Identificador unico do servico (UUID)
+        required: true
+      tags:
+      - servicos
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicoDetail'
+          description: ''
+    put:
+      operationId: servicos_update
+      description: Atualiza todos os campos de um servico. Apenas o autor pode editar.
+      summary: Atualizar servico (completo)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Identificador unico do servico (UUID)
+        required: true
+      tags:
+      - servicos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServicoCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ServicoCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ServicoCreateUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicoCreateUpdate'
+          description: ''
+    patch:
+      operationId: servicos_partial_update
+      description: Atualiza apenas os campos enviados. Apenas o autor pode editar.
+      summary: Atualizar servico (parcial)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Identificador unico do servico (UUID)
+        required: true
+      tags:
+      - servicos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedServicoCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedServicoCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedServicoCreateUpdateRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicoCreateUpdate'
+          description: ''
+    delete:
+      operationId: servicos_destroy
+      description: Remove um servico. Apenas o autor pode remover.
+      summary: Remover servico
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Identificador unico do servico (UUID)
+        required: true
+      tags:
+      - servicos
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    AlterarSenhaRequest:
+      type: object
+      description: |-
+        Serializer para alteracao de senha.
+
+        Campos aceitos:
+            - password_atual: senha atual (obrigatorio)
+            - nova_password: nova senha (obrigatorio, minimo 8 caracteres)
+            - nova_password2: confirmacao da nova senha
+
+        Exemplo de requisicao:
+            POST /api/v1/auth/change-password/
+            {
+                "password_atual": "senhaantiga",
+                "nova_password": "novasenha123",
+                "nova_password2": "novasenha123"
+            }
+      properties:
+        password_atual:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: Senha atual do usuario
+        nova_password:
+          type: string
+          writeOnly: true
+          minLength: 8
+          description: Nova senha (minimo 8 caracteres)
+        nova_password2:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: Confirmacao da nova senha
+      required:
+      - nova_password
+      - nova_password2
+      - password_atual
+    Categoria:
+      type: object
+      description: "Serializer para leitura de categorias.\n\nRetorna os dados basicos
+        de uma categoria.\n\nCampos retornados:\n    - id, nome, descricao, icone\n
+        \   - quantidade_servicos: total de servicos na categoria\n\nExemplo de resposta:\n
+        \   {\n        \"id\": 1,\n        \"nome\": \"Desenvolvimento Web\",\n        \"descricao\":
+        \"Criacao de sites e sistemas web\",\n        \"icone\": \"\U0001F4BB\",\n
+        \       \"quantidade_servicos\": 15\n    }"
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nome:
+          type: string
+          description: Nome unico da categoria
+          maxLength: 100
+        descricao:
+          type: string
+          description: Descricao da categoria
+        icone:
+          type: string
+          description: Emoji ou icone representativo da categoria
+          maxLength: 10
+        quantidade_servicos:
+          type: integer
+          description: Conta quantos servicos ativos existem nesta categoria.
+          readOnly: true
+      required:
+      - id
+      - nome
+      - quantidade_servicos
+    PaginatedServicoListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServicoList'
+    PatchedServicoCreateUpdateRequest:
+      type: object
+      description: |-
+        Serializer para criacao e atualizacao de servicos.
+
+        Usado apenas para escrita (POST, PUT, PATCH).
+        O campo 'usuario' e definido automaticamente pelo viewset.
+
+        Campos aceitos:
+            - titulo: titulo do servico (obrigatorio)
+            - descricao: descricao detalhada (obrigatorio)
+            - categoria: ID da categoria (obrigatorio)
+            - preco: valor do servico (opcional)
+            - tipo_preco: 'fixo' ou 'a_combinar' (opcional, padrao: fixo)
+            - localizacao: cidade/estado (opcional)
+            - ativo: true/false (opcional, padrao: true)
+
+        Exemplo de requisicao:
+            POST /api/v1/servicos/
+            {
+                "titulo": "Desenvolvimento de site institucional",
+                "descricao": "Crio sites modernos e responsivos...",
+                "categoria": 1,
+                "preco": 2500.00,
+                "tipo_preco": "fixo",
+                "localizacao": "Sao Paulo, SP"
+            }
+      properties:
+        titulo:
+          type: string
+          minLength: 1
+          description: Titulo descritivo do servico
+          maxLength: 200
+        descricao:
+          type: string
+          minLength: 1
+          description: Descricao detalhada do servico oferecido
+        categoria:
+          type: integer
+          description: Categoria do servico
+        preco:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Preco do servico (deixe vazio para 'A Combinar')
+        tipo_preco:
+          allOf:
+          - $ref: '#/components/schemas/TipoPrecoEnum'
+          title: Tipo de Preco
+          description: |-
+            Tipo do preco: fixo ou a combinar
+
+            * `fixo` - Preco Fixo
+            * `a_combinar` - A Combinar
+        localizacao:
+          type: string
+          description: Cidade e estado onde o servico e oferecido
+          maxLength: 200
+        ativo:
+          type: boolean
+          description: Se o servico esta disponivel para contratacao
+    PatchedUsuarioRequest:
+      type: object
+      description: |-
+        Serializer para leitura dos dados do usuario.
+
+        Usado para retornar os dados do perfil do usuario nas respostas da API.
+        NUNCA inclui dados sensiveis como senha ou tokens.
+
+        Campos retornados:
+            - id, email, username, first_name, last_name
+            - tipo_usuario, telefone, bio, endereco
+            - foto_perfil, data_nascimento
+            - date_joined, quantidade_servicos
+
+        Exemplo de resposta:
+            {
+                "id": "uuid-do-usuario",
+                "email": "joao@email.com",
+                "username": "joao@email.com",
+                "first_name": "Joao",
+                "last_name": "Silva",
+                "tipo_usuario": "profissional",
+                "telefone": "(11) 99999-9999",
+                "bio": "Desenvolvedor web...",
+                "endereco": "Sao Paulo, SP",
+                "foto_perfil": "/media/perfis/foto.jpg",
+                "data_nascimento": "1990-01-15",
+                "date_joined": "2026-01-01T00:00:00Z",
+                "quantidade_servicos": 5
+            }
+      properties:
+        username:
+          type: string
+          minLength: 1
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        tipo_usuario:
+          allOf:
+          - $ref: '#/components/schemas/TipoUsuarioEnum'
+          title: Tipo de Usuario
+          description: |-
+            Tipo de usuario: profissional ou empresa
+
+            * `profissional` - Profissional
+            * `empresa` - Empresa
+        telefone:
+          type: string
+          description: Numero de telefone para contato
+          maxLength: 20
+        bio:
+          type: string
+          title: Biografia
+          description: Biografia ou descricao profissional do usuario
+        endereco:
+          type: string
+          description: Cidade e estado onde o usuario atua
+          maxLength: 200
+        foto_perfil:
+          type: string
+          format: binary
+        data_nascimento:
+          type: string
+          format: date
+          nullable: true
+          title: Data de Nascimento
+          description: Data de nascimento do usuario
+    Registro:
+      type: object
+      description: |-
+        Serializer para registro de novos usuarios.
+
+        Campos aceitos no POST:
+            - email: email do usuario (obrigatorio, unico)
+            - username: nome de usuario (obrigatorio, unico)
+            - password: senha (obrigatoria, minimo 8 caracteres)
+            - password2: confirmacao da senha (deve ser igual a password)
+            - first_name: nome (obrigatorio)
+            - last_name: sobrenome (obrigatorio)
+            - tipo_usuario: 'profissional' ou 'empresa' (opcional, padrao: profissional)
+
+        Campos retornados na resposta:
+            - id, email, username, first_name, last_name, tipo_usuario
+
+        Exemplo de requisicao:
+            POST /api/v1/auth/register/
+            {
+                "email": "joao@email.com",
+                "username": "joao@email.com",
+                "password": "senha123",
+                "password2": "senha123",
+                "first_name": "Joao",
+                "last_name": "Silva",
+                "tipo_usuario": "profissional"
+            }
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Identificador unico do usuario (UUID)
+        email:
+          title: Endereço de email
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        username:
+          type: string
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        tipo_usuario:
+          allOf:
+          - $ref: '#/components/schemas/TipoUsuarioEnum'
+          title: Tipo de Usuario
+          description: |-
+            Tipo de usuario: profissional ou empresa
+
+            * `profissional` - Profissional
+            * `empresa` - Empresa
+      required:
+      - first_name
+      - id
+      - last_name
+      - username
+    RegistroRequest:
+      type: object
+      description: |-
+        Serializer para registro de novos usuarios.
+
+        Campos aceitos no POST:
+            - email: email do usuario (obrigatorio, unico)
+            - username: nome de usuario (obrigatorio, unico)
+            - password: senha (obrigatoria, minimo 8 caracteres)
+            - password2: confirmacao da senha (deve ser igual a password)
+            - first_name: nome (obrigatorio)
+            - last_name: sobrenome (obrigatorio)
+            - tipo_usuario: 'profissional' ou 'empresa' (opcional, padrao: profissional)
+
+        Campos retornados na resposta:
+            - id, email, username, first_name, last_name, tipo_usuario
+
+        Exemplo de requisicao:
+            POST /api/v1/auth/register/
+            {
+                "email": "joao@email.com",
+                "username": "joao@email.com",
+                "password": "senha123",
+                "password2": "senha123",
+                "first_name": "Joao",
+                "last_name": "Silva",
+                "tipo_usuario": "profissional"
+            }
+      properties:
+        email:
+          title: Endereço de email
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        username:
+          type: string
+          minLength: 1
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+          description: Senha do usuario (minimo 8 caracteres)
+        password2:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: Confirmacao da senha (deve ser igual a senha)
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        tipo_usuario:
+          allOf:
+          - $ref: '#/components/schemas/TipoUsuarioEnum'
+          title: Tipo de Usuario
+          description: |-
+            Tipo de usuario: profissional ou empresa
+
+            * `profissional` - Profissional
+            * `empresa` - Empresa
+      required:
+      - first_name
+      - last_name
+      - password
+      - password2
+      - username
+    ServicoCreateUpdate:
+      type: object
+      description: |-
+        Serializer para criacao e atualizacao de servicos.
+
+        Usado apenas para escrita (POST, PUT, PATCH).
+        O campo 'usuario' e definido automaticamente pelo viewset.
+
+        Campos aceitos:
+            - titulo: titulo do servico (obrigatorio)
+            - descricao: descricao detalhada (obrigatorio)
+            - categoria: ID da categoria (obrigatorio)
+            - preco: valor do servico (opcional)
+            - tipo_preco: 'fixo' ou 'a_combinar' (opcional, padrao: fixo)
+            - localizacao: cidade/estado (opcional)
+            - ativo: true/false (opcional, padrao: true)
+
+        Exemplo de requisicao:
+            POST /api/v1/servicos/
+            {
+                "titulo": "Desenvolvimento de site institucional",
+                "descricao": "Crio sites modernos e responsivos...",
+                "categoria": 1,
+                "preco": 2500.00,
+                "tipo_preco": "fixo",
+                "localizacao": "Sao Paulo, SP"
+            }
+      properties:
+        titulo:
+          type: string
+          description: Titulo descritivo do servico
+          maxLength: 200
+        descricao:
+          type: string
+          description: Descricao detalhada do servico oferecido
+        categoria:
+          type: integer
+          description: Categoria do servico
+        preco:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Preco do servico (deixe vazio para 'A Combinar')
+        tipo_preco:
+          allOf:
+          - $ref: '#/components/schemas/TipoPrecoEnum'
+          title: Tipo de Preco
+          description: |-
+            Tipo do preco: fixo ou a combinar
+
+            * `fixo` - Preco Fixo
+            * `a_combinar` - A Combinar
+        localizacao:
+          type: string
+          description: Cidade e estado onde o servico e oferecido
+          maxLength: 200
+        ativo:
+          type: boolean
+          description: Se o servico esta disponivel para contratacao
+      required:
+      - categoria
+      - descricao
+      - titulo
+    ServicoCreateUpdateRequest:
+      type: object
+      description: |-
+        Serializer para criacao e atualizacao de servicos.
+
+        Usado apenas para escrita (POST, PUT, PATCH).
+        O campo 'usuario' e definido automaticamente pelo viewset.
+
+        Campos aceitos:
+            - titulo: titulo do servico (obrigatorio)
+            - descricao: descricao detalhada (obrigatorio)
+            - categoria: ID da categoria (obrigatorio)
+            - preco: valor do servico (opcional)
+            - tipo_preco: 'fixo' ou 'a_combinar' (opcional, padrao: fixo)
+            - localizacao: cidade/estado (opcional)
+            - ativo: true/false (opcional, padrao: true)
+
+        Exemplo de requisicao:
+            POST /api/v1/servicos/
+            {
+                "titulo": "Desenvolvimento de site institucional",
+                "descricao": "Crio sites modernos e responsivos...",
+                "categoria": 1,
+                "preco": 2500.00,
+                "tipo_preco": "fixo",
+                "localizacao": "Sao Paulo, SP"
+            }
+      properties:
+        titulo:
+          type: string
+          minLength: 1
+          description: Titulo descritivo do servico
+          maxLength: 200
+        descricao:
+          type: string
+          minLength: 1
+          description: Descricao detalhada do servico oferecido
+        categoria:
+          type: integer
+          description: Categoria do servico
+        preco:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Preco do servico (deixe vazio para 'A Combinar')
+        tipo_preco:
+          allOf:
+          - $ref: '#/components/schemas/TipoPrecoEnum'
+          title: Tipo de Preco
+          description: |-
+            Tipo do preco: fixo ou a combinar
+
+            * `fixo` - Preco Fixo
+            * `a_combinar` - A Combinar
+        localizacao:
+          type: string
+          description: Cidade e estado onde o servico e oferecido
+          maxLength: 200
+        ativo:
+          type: boolean
+          description: Se o servico esta disponivel para contratacao
+      required:
+      - categoria
+      - descricao
+      - titulo
+    ServicoDetail:
+      type: object
+      description: |-
+        Serializer para detalhes de um servico.
+
+        Retorna todos os dados de um servico, incluindo informacoes
+        completas do autor e da categoria.
+
+        Usado nas endpoints de:
+            - GET /api/v1/servicos/{id}/
+            - PUT/PATCH /api/v1/servicos/{id}/
+
+        Campos retornados:
+            - Todos os campos do modelo
+            - autor: informacoes completas do autor
+            - categoria_nome: nome da categoria
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Identificador unico do servico (UUID)
+        titulo:
+          type: string
+          description: Titulo descritivo do servico
+          maxLength: 200
+        descricao:
+          type: string
+          description: Descricao detalhada do servico oferecido
+        categoria:
+          type: integer
+          description: Categoria do servico
+        categoria_nome:
+          type: string
+          readOnly: true
+        preco:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Preco do servico (deixe vazio para 'A Combinar')
+        preco_formatado:
+          type: string
+          readOnly: true
+        tipo_preco:
+          allOf:
+          - $ref: '#/components/schemas/TipoPrecoEnum'
+          title: Tipo de Preco
+          description: |-
+            Tipo do preco: fixo ou a combinar
+
+            * `fixo` - Preco Fixo
+            * `a_combinar` - A Combinar
+        localizacao:
+          type: string
+          description: Cidade e estado onde o servico e oferecido
+          maxLength: 200
+        ativo:
+          type: boolean
+          description: Se o servico esta disponivel para contratacao
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Data e hora de criacao do servico
+        atualizado_em:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Data e hora da ultima atualizacao
+        autor:
+          type: object
+          additionalProperties: {}
+          description: Retorna informacoes completas do autor do servico.
+          readOnly: true
+      required:
+      - atualizado_em
+      - autor
+      - categoria
+      - categoria_nome
+      - criado_em
+      - descricao
+      - id
+      - preco_formatado
+      - titulo
+    ServicoList:
+      type: object
+      description: |-
+        Serializer para listagem de servicos.
+
+        Retorna os dados essenciais de um servico para listagens.
+        Inclui informacoes resumidas do autor e categoria.
+
+        Campos retornados:
+            - id, titulo, descricao (resumida)
+            - categoria (nome), preco, preco_formatado, tipo_preco
+            - localizacao, ativo, criado_em
+            - autor (nome, tipo_usuario, foto_perfil)
+
+        Exemplo de resposta:
+            {
+                "id": "uuid-do-servico",
+                "titulo": "Desenvolvimento de site",
+                "descricao_resumida": "Crio sites modernos...",
+                "categoria": "Desenvolvimento Web",
+                "preco": 2500.00,
+                "preco_formatado": "R$ 2.500,00",
+                "tipo_preco": "fixo",
+                "localizacao": "Sao Paulo, SP",
+                "ativo": true,
+                "criado_em": "2026-01-01T00:00:00Z",
+                "autor": {
+                    "id": "uuid-do-autor",
+                    "nome": "Joao Silva",
+                    "tipo_usuario": "profissional",
+                    "foto_perfil": "/media/perfis/foto.jpg"
+                }
+            }
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Identificador unico do servico (UUID)
+        titulo:
+          type: string
+          description: Titulo descritivo do servico
+          maxLength: 200
+        descricao:
+          type: string
+          description: Descricao detalhada do servico oferecido
+        categoria:
+          type: string
+          readOnly: true
+        preco:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Preco do servico (deixe vazio para 'A Combinar')
+        preco_formatado:
+          type: string
+          readOnly: true
+        tipo_preco:
+          allOf:
+          - $ref: '#/components/schemas/TipoPrecoEnum'
+          title: Tipo de Preco
+          description: |-
+            Tipo do preco: fixo ou a combinar
+
+            * `fixo` - Preco Fixo
+            * `a_combinar` - A Combinar
+        localizacao:
+          type: string
+          description: Cidade e estado onde o servico e oferecido
+          maxLength: 200
+        ativo:
+          type: boolean
+          description: Se o servico esta disponivel para contratacao
+        criado_em:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Data e hora de criacao do servico
+        autor:
+          type: object
+          additionalProperties: {}
+          description: Retorna informacoes resumidas do autor do servico.
+          readOnly: true
+      required:
+      - autor
+      - categoria
+      - criado_em
+      - descricao
+      - id
+      - preco_formatado
+      - titulo
+    TipoPrecoEnum:
+      enum:
+      - fixo
+      - a_combinar
+      type: string
+      description: |-
+        * `fixo` - Preco Fixo
+        * `a_combinar` - A Combinar
+    TipoUsuarioEnum:
+      enum:
+      - profissional
+      - empresa
+      type: string
+      description: |-
+        * `profissional` - Profissional
+        * `empresa` - Empresa
+    TokenObtainPair:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - refresh
+    TokenObtainPairRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    TokenVerifyRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - token
+    Usuario:
+      type: object
+      description: |-
+        Serializer para leitura dos dados do usuario.
+
+        Usado para retornar os dados do perfil do usuario nas respostas da API.
+        NUNCA inclui dados sensiveis como senha ou tokens.
+
+        Campos retornados:
+            - id, email, username, first_name, last_name
+            - tipo_usuario, telefone, bio, endereco
+            - foto_perfil, data_nascimento
+            - date_joined, quantidade_servicos
+
+        Exemplo de resposta:
+            {
+                "id": "uuid-do-usuario",
+                "email": "joao@email.com",
+                "username": "joao@email.com",
+                "first_name": "Joao",
+                "last_name": "Silva",
+                "tipo_usuario": "profissional",
+                "telefone": "(11) 99999-9999",
+                "bio": "Desenvolvedor web...",
+                "endereco": "Sao Paulo, SP",
+                "foto_perfil": "/media/perfis/foto.jpg",
+                "data_nascimento": "1990-01-15",
+                "date_joined": "2026-01-01T00:00:00Z",
+                "quantidade_servicos": 5
+            }
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Identificador unico do usuario (UUID)
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Endereço de email
+        username:
+          type: string
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        tipo_usuario:
+          allOf:
+          - $ref: '#/components/schemas/TipoUsuarioEnum'
+          title: Tipo de Usuario
+          description: |-
+            Tipo de usuario: profissional ou empresa
+
+            * `profissional` - Profissional
+            * `empresa` - Empresa
+        telefone:
+          type: string
+          description: Numero de telefone para contato
+          maxLength: 20
+        bio:
+          type: string
+          title: Biografia
+          description: Biografia ou descricao profissional do usuario
+        endereco:
+          type: string
+          description: Cidade e estado onde o usuario atua
+          maxLength: 200
+        foto_perfil:
+          type: string
+          format: uri
+          nullable: true
+        data_nascimento:
+          type: string
+          format: date
+          nullable: true
+          title: Data de Nascimento
+          description: Data de nascimento do usuario
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Data de registro
+        quantidade_servicos:
+          type: integer
+          readOnly: true
+      required:
+      - date_joined
+      - email
+      - id
+      - quantidade_servicos
+      - username
+    UsuarioRequest:
+      type: object
+      description: |-
+        Serializer para leitura dos dados do usuario.
+
+        Usado para retornar os dados do perfil do usuario nas respostas da API.
+        NUNCA inclui dados sensiveis como senha ou tokens.
+
+        Campos retornados:
+            - id, email, username, first_name, last_name
+            - tipo_usuario, telefone, bio, endereco
+            - foto_perfil, data_nascimento
+            - date_joined, quantidade_servicos
+
+        Exemplo de resposta:
+            {
+                "id": "uuid-do-usuario",
+                "email": "joao@email.com",
+                "username": "joao@email.com",
+                "first_name": "Joao",
+                "last_name": "Silva",
+                "tipo_usuario": "profissional",
+                "telefone": "(11) 99999-9999",
+                "bio": "Desenvolvedor web...",
+                "endereco": "Sao Paulo, SP",
+                "foto_perfil": "/media/perfis/foto.jpg",
+                "data_nascimento": "1990-01-15",
+                "date_joined": "2026-01-01T00:00:00Z",
+                "quantidade_servicos": 5
+            }
+      properties:
+        username:
+          type: string
+          minLength: 1
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        tipo_usuario:
+          allOf:
+          - $ref: '#/components/schemas/TipoUsuarioEnum'
+          title: Tipo de Usuario
+          description: |-
+            Tipo de usuario: profissional ou empresa
+
+            * `profissional` - Profissional
+            * `empresa` - Empresa
+        telefone:
+          type: string
+          description: Numero de telefone para contato
+          maxLength: 20
+        bio:
+          type: string
+          title: Biografia
+          description: Biografia ou descricao profissional do usuario
+        endereco:
+          type: string
+          description: Cidade e estado onde o usuario atua
+          maxLength: 200
+        foto_perfil:
+          type: string
+          format: binary
+        data_nascimento:
+          type: string
+          format: date
+          nullable: true
+          title: Data de Nascimento
+          description: Data de nascimento do usuario
+      required:
+      - username
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: auth
+  description: Autenticacao e gerenciamento de tokens
+- name: usuarios
+  description: Gerenciamento de perfis de usuarios
+- name: servicos
+  description: CRUD de servicos
+- name: categorias
+  description: Listagem de categorias de servicos
