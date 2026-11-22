@@ -1,0 +1,39 @@
+# Verificação automática da API a cada pull request e push na main.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    name: Testes da API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Verificar configuração do Django
+        run: python manage.py check
+
+      - name: Verificar migrações pendentes
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Rodar testes
+        run: python manage.py test apps -v 2
